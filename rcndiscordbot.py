@@ -4,7 +4,7 @@ from discord.ext import commands
 
 # Vars
 prefix = "$"
-token = "ODk1OTk4ODM3NTQwNDA1MjU5.YWAt8Q.QrjR1ERuo8jg0eoEpX-WGJ5lACs"
+token = "token"
 
 bot = commands.Bot(command_prefix="$")
 bot.remove_command('help')
