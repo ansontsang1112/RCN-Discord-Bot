@@ -1,2 +1,1 @@
 requests~=2.27.1
-discord~=1.7.3
