@@ -5,7 +5,7 @@ import mcs
 import interactions
 
 # Vars
-token = "OTg4NDUyMjQ4NjI5NzAyNzI3.G6e2RU.WTDTYmS-Svexs_QuTe7NSZD9s0M24_isFqjEhc"
+token = "TOKEN"
 welcome_channel_id = "440910838832955412"
 guild_id = "440910838401073174"
 
