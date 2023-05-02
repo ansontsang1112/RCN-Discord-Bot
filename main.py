@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import mcs
 import random
 import interactions
+import requests
 import os
 
 # Vars
@@ -52,6 +53,75 @@ async def _apply(ctx: interactions.CommandContext):
             userID) + "&tpo=true")
 
 
+@bot.command(
+    name="info",
+    description="查看會員訊息",
+    options=[
+        interactions.Option(
+            name="rcn_id",
+            description="輸入會員 ID",
+            type=interactions.OptionType.STRING,
+            required=True,
+            autocomplete=False
+        )
+    ]
+)
+async def _info(ctx: interactions.CommandContext, rcn_id):
+    if rcn_id is None:
+        await ctx.send(f"你好，你必須輸入 RCN ID 進行查詢。")
+    else:
+        request = requests.get(f'http://{os.getenv("api_ip")}/v1/?rt=info&val={rcn_id}')
+        response = request.json()
+        if response['code'] != 200:
+            await ctx.send(f"你好，RCN ID [ {rcn_id} ] 並未有在我們的會員資料庫登記，請確認訊息後再試。")
+        else:
+            embed = interactions.Embed(title=f"查詢會員 {rcn_id} 資料", url="https://portal.resonancecraft.net",
+                               description="協助您了解更多 RCN 社群資訊")
+            embed.set_author(name="[RCN] 資訊科技委員會 | HyperNitePo. 協助製作")
+            embed.add_field(name="RCN ID", value=response['response']['id'])
+            embed.add_field(name="登記名稱", value=response['response']['name'])
+            embed.add_field(name="Discord 登記", value=response['response']['discord'])
+            embed.add_field(name="用戶名", value=response['response']['username'])
+            embed.add_field(name="會員類別", value=response['response']['level'])
+            embed.add_field(name="註冊日期", value=response['response']['reg_date'])
+            embed.add_field(name="批核幹事", value=response['response']['approve_by'])
+            embed.set_footer(text=f"會員資料查詢：會員 {rcn_id} 資料 | Member of HyperGroup")
+            await ctx.send(embeds=embed)
+
+
+@bot.command(
+    name="progress",
+    description="查看申請狀態及訊息",
+    options=[
+        interactions.Option(
+            name="record_id",
+            description="輸入「申請 ID」",
+            type=interactions.OptionType.STRING,
+            required=True,
+            autocomplete=False
+        )
+    ]
+)
+async def _progress(ctx: interactions.CommandContext, record_id):
+    if record_id is None:
+        await ctx.send(f"你好，你必須輸入「申請 ID」進行查詢。")
+    else:
+        request = requests.get(f'http://{os.getenv("api_ip")}/v1/?rt=progress&val={record_id}')
+        response = request.json()
+        if response['code'] != 200:
+            await ctx.send(f"你好，申請 ID [ {record_id} ] 並未有在我們的會員資料庫登記，請確認訊息後再試。")
+        else:
+            embed = interactions.Embed(title=f"查詢申請 {record_id} 資料", url="https://www.resonancecraft.net/status.php",
+                               description="協助您了解更多 RCN 社群資訊")
+            embed.set_author(name="[RCN] 資訊科技委員會 | HyperNitePo. 協助製作")
+            embed.add_field(name="申請 ID", value=response['response']['id'])
+            embed.add_field(name="登記名稱", value=response['response']['name'])
+            embed.add_field(name="Discord 登記", value=response['response']['discord'])
+            embed.add_field(name="申請狀態", value=f"**{response['response']['progress']}**")
+            embed.set_footer(text=f"申請資料查詢：會員 {record_id} 資料 | Member of HyperGroup")
+            await ctx.send(embeds=embed)
+
+
 @bot.command(name="status")
 async def serverStatus(ctx, args=""):
     stateCode, returnStatement = 0, ""
@@ -84,6 +154,8 @@ async def _help(ctx: interactions.CommandContext):
     embed.add_field(name="/help", value="查詢 RCN 機械人指令", inline=False)
     embed.add_field(name="/myid", value="查詢自己的 Discord ID 及 帳號 ID", inline=False)
     embed.add_field(name="/apply", value="申請會員用途", inline=False)
+    embed.add_field(name="/info {RCN ID}", value="查詢會員資料", inline=False)
+    embed.add_field(name="/progress {申請 ID}", value="查詢申請狀態", inline=False)
     embed.set_footer(text="ResonanceCraft Network 機器人使用指南 | Member of HyperGroup")
     await ctx.send(embeds=embed)
 
